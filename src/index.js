@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 
 const VISIBILITY_ACTION_TYPE = "SET VISIBILITY FILTER";
 const ADD_TODO_TYPE = "ADD TODO";
@@ -10,6 +10,8 @@ const TOGGLE_TODO_TYPE = "TOGGLE TODO";
 const FILTER_ALL = "SHOW ALL";
 const FILTER_OPEN = "SHOW OPEN";
 const FILTER_DONE = "SHOW DONE";
+
+let currentId = 0;
 
 // Utility functions
 
@@ -66,7 +68,6 @@ const visibilityFilter = (state=FILTER_ALL, action) => {
 };
 
 const appRedux = combineReducers({todos, visibilityFilter});
-let currentId = 0;
 
 // Presentation components
 
@@ -102,12 +103,12 @@ const Todo = ({todo, onClick}) => {
   );
 };
 
-const TodoList = ({visibleTodos, onTodoClick}) => {
+const TodoList = ({todos, onTodoClick}) => {
   currentId++;
   return (
     <ul>
       {
-        visibleTodos.map(
+        todos.map(
           todo =>
           <Todo
             key={todo.id}
@@ -156,26 +157,19 @@ const Footer = ({store}) => (
 
 // Containers
 
-class VisibileTodoList extends React.Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  }
+const mapStateToProps = (state) => {
+  return {todos: getVisibileTodos(state.todos, state.visibilityFilter)};
+};
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  render() {
-    const { store } = this.context;
-    let todos = store.getState().todos;
-    let visibilityFilter = store.getState().visibilityFilter;
-    return <TodoList
-      visibleTodos={getVisibileTodos(todos, visibilityFilter)}
-      onTodoClick={(id) => store.dispatch({id, type: TOGGLE_TODO_TYPE})}/>;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => dispatch({id, type: TOGGLE_TODO_TYPE})
   }
 }
-VisibileTodoList.contextTypes = {store: PropTypes.object};
+
+const VisibileTodoList = connect(
+  mapStateToProps, mapDispatchToProps
+)(TodoList);
 
 class FilterLink extends React.Component {
   // The next two methods handle subscription for changes in the store
