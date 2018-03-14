@@ -28,6 +28,20 @@ const getVisibileTodos = (todos, filter) => {
   }
 }
 
+// Action creators
+
+const addTodo = (id, text) => {
+  return {id, type: ADD_TODO_TYPE, text};
+};
+
+const setVisibilityFilter = (filter) => {
+  return {type: VISIBILITY_ACTION_TYPE, filter};
+};
+
+const toggleTodo = (id) => {
+  return {id, type: TOGGLE_TODO_TYPE};
+};
+
 // Reducers
 
 const todo = (state, action) => {
@@ -79,9 +93,7 @@ const AddTodoComponent = ({ dispatch }) => {
       <button
         onClick={
           () => {
-            dispatch({
-              id: currentId, type: ADD_TODO_TYPE, text: input.value
-            });
+            dispatch(addTodo(currentId, input.value));
             input.value = '';
           }
         }>
@@ -164,7 +176,7 @@ const mapStateTodoToProps = (state) => {
 
 const mapDispatchTodoToProps = (dispatch) => {
   return {
-    onTodoClick: (id) => dispatch({id, type: TOGGLE_TODO_TYPE})
+    onTodoClick: (id) => dispatch(toggleTodo(id))
   };
 }
 
@@ -178,11 +190,7 @@ const mapStateFilterToProps = (state, props) => {
 }
 
 const mapDispatchFilterToProps = (dispatch, props) => {
-  return {
-    onClick: () => dispatch({
-      type: VISIBILITY_ACTION_TYPE, filter: props.filter
-    })
-  };
+  return {onClick: () => dispatch(setVisibilityFilter(props.filter))};
 }
 
 const FilterLink = connect(
