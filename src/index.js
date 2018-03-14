@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
 
 const VISIBILITY_ACTION_TYPE = "SET VISIBILITY FILTER";
 const ADD_TODO_TYPE = "ADD TODO";
@@ -203,17 +204,6 @@ class FilterLink extends React.Component {
   }
 };
 FilterLink.contextTypes = {store: PropTypes.object};
-
-class Provider extends React.Component {
-  getChildContext() {
-    return {store: this.props.store};
-  }
-
-  render() {
-    return this.props.children;
-  }
-};
-Provider.childContextTypes = {store: PropTypes.object}
 
 // React
 
