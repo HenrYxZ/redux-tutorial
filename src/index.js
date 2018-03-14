@@ -55,7 +55,7 @@ let currentId = 0;
 
 // Presentation components
 
-const AddTodo = ({addTodo}) => {
+const AddTodo = () => {
   let input;
   return (
     <div>
@@ -63,7 +63,9 @@ const AddTodo = ({addTodo}) => {
       <button
         onClick={
           () => {
-            addTodo(input.value);
+            store.dispatch({
+              id: currentId, type: ADD_TODO_TYPE, text: input.value
+            });
             input.value = '';
           }
         }>
@@ -85,6 +87,7 @@ const Todo = ({todo, onClick}) => {
 }
 
 const TodoList = ({visibleTodos, onTodoClick}) => {
+  currentId++;
   return (
     <ul>
       {
@@ -98,6 +101,24 @@ const TodoList = ({visibleTodos, onTodoClick}) => {
       }
     </ul>
   );
+}
+
+class VisibileTodoList extends React.Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() => this.forceUpdate());
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  render() {
+    let todos = store.getState().todos;
+    let visibilityFilter = store.getState().visibilityFilter;
+    return <TodoList
+      visibleTodos={getVisibileTodos(todos, visibilityFilter)}
+      onTodoClick={(id) => store.dispatch({id, type: TOGGLE_TODO_TYPE})}/>
+  }
 }
 
 const Link = ({active, onClick, children}) => {
@@ -177,29 +198,17 @@ const getVisibileTodos = (todos, filter) => {
 
 // React
 
-const App = ({todos, visibilityFilter}) => {
-  currentId++;
+const App = () => {
   return (
     <div>
-      <AddTodo
-        addTodo={
-          (text) =>
-          store.dispatch({id: currentId, type: ADD_TODO_TYPE, text})
-        }/>
-      <TodoList
-        visibleTodos={getVisibileTodos(todos, visibilityFilter)}
-        onTodoClick={(id) => store.dispatch({id, type: TOGGLE_TODO_TYPE})}/>
+      <AddTodo />
+      <VisibileTodoList />
       <Footer />
     </div>
   );
 }
 
-const render = () => {
-    ReactDOM.render(
-      <App {...store.getState()}/>,
-      document.getElementById('root')
-    );
-}
-
-store.subscribe(render);
-render();
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
+);
