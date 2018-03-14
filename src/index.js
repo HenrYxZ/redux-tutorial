@@ -4,6 +4,8 @@ import { createStore, combineReducers } from 'redux';
 
 const VISIBILITY_ACTION_TYPE = "SET VISIBILITY FILTER";
 
+// Reducers
+
 const todoReducer = (state, action) => {
   switch (action.type) {
     case "ADD TODO":
@@ -46,6 +48,38 @@ const appRedux = combineReducers({todosReducer, visibilityReducer});
 const store = createStore(appRedux);
 let currentId = 0;
 
+// Presentation components
+
+const Todo = ({todo, onClick}) => {
+  console.log("Todo");
+  console.log(todo);
+  return (
+    <li
+      onClick={onClick}
+      style={{textDecoration: todo.completed ? 'line-through': 'none'}}
+    >
+      {todo.text}
+    </li>
+  );
+}
+
+const TodoList = ({visibleTodos, onTodoClick}) => {
+  console.log("TodoList");
+  console.log(visibleTodos);
+  return (
+    <ul>
+      {
+        visibleTodos.map(
+          todo =>
+          <Todo
+            todo={todo}
+            onClick={() => onTodoClick(todo.id)}/>
+        )
+      }
+    </ul>
+  );
+}
+
 const FilterLink = ({filter, currentFilter, children}) => {
   if (filter === currentFilter){
     return <span>{children}</span>
@@ -64,6 +98,8 @@ const FilterLink = ({filter, currentFilter, children}) => {
   )
 };
 
+// Utility functions
+
 const getVisibileTodos = (todos, filter) => {
   switch (filter) {
     case "SHOW ALL":
@@ -76,6 +112,8 @@ const getVisibileTodos = (todos, filter) => {
       return todos
   }
 }
+
+// React
 
 class App extends React.Component {
   render() {
@@ -95,23 +133,9 @@ class App extends React.Component {
         }>
           Add To Do
         </button>
-        <ul>
-          {
-            visibleTodos.map(
-              todo =>
-                <li
-                  key={todo.id}
-                  onClick={
-                    () => store.dispatch({id: todo.id, type: "TOGGLE TODO"})
-                  }
-                  style={
-                    {textDecoration: todo.completed ? 'line-through': 'none'}
-                  }>
-                  {todo.text}
-                </li>
-            )
-          }
-        </ul>
+        <TodoList
+          visibleTodos={visibleTodos}
+          onTodoClick={(id) => store.dispatch({id, type: "TOGGLE TODO"})}/>
         <p>
           Show:{" "}
           <FilterLink
