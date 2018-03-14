@@ -71,7 +71,7 @@ const appRedux = combineReducers({todos, visibilityFilter});
 
 // Presentation components
 
-const AddTodo = (props, { store }) => {
+const AddTodoComponent = ({ dispatch }) => {
   let input;
   return (
     <div>
@@ -79,7 +79,7 @@ const AddTodo = (props, { store }) => {
       <button
         onClick={
           () => {
-            store.dispatch({
+            dispatch({
               id: currentId, type: ADD_TODO_TYPE, text: input.value
             });
             input.value = '';
@@ -90,7 +90,6 @@ const AddTodo = (props, { store }) => {
     </div>
   );
 };
-AddTodo.contextTypes = {store: PropTypes.object};
 
 const Todo = ({todo, onClick}) => {
   return (
@@ -156,6 +155,8 @@ const Footer = ({store}) => (
 );
 
 // Containers
+
+const AddTodo = connect()(AddTodoComponent)
 
 const mapStateToProps = (state) => {
   return {todos: getVisibileTodos(state.todos, state.visibilityFilter)};
