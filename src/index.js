@@ -46,7 +46,10 @@ const appRedux = combineReducers({todosReducer, visibilityReducer});
 const store = createStore(appRedux);
 let currentId = 0;
 
-const FilterLink = ({filter, children}) => {
+const FilterLink = ({filter, currentFilter, children}) => {
+  if (filter === currentFilter){
+    return <span>{children}</span>
+  }
   return (
     <a
       href='#'
@@ -111,9 +114,21 @@ class App extends React.Component {
         </ul>
         <p>
           Show:{" "}
-          <FilterLink filter="SHOW ALL">All</FilterLink> {" "}
-          <FilterLink filter="SHOW OPEN">Open</FilterLink>{" "}
-          <FilterLink filter="SHOW DONE">Done</FilterLink>
+          <FilterLink
+            filter="SHOW ALL"
+            currentFilter={visibilityFilter}>
+            All
+          </FilterLink> {" "}
+          <FilterLink
+            filter="SHOW OPEN"
+            currentFilter={visibilityFilter}>
+            Open
+          </FilterLink>{" "}
+          <FilterLink
+            filter="SHOW DONE"
+            currentFilter={visibilityFilter}>
+            Done
+          </FilterLink>
         </p>
       </div>
     )
