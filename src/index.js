@@ -3,13 +3,14 @@ import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import PropTypes from 'prop-types';
 import { Provider, connect } from 'react-redux';
+import { Router, Route, browserHistory, Link} from 'react-router';
 
 const VISIBILITY_ACTION_TYPE = "SET VISIBILITY FILTER";
 const ADD_TODO_TYPE = "ADD TODO";
 const TOGGLE_TODO_TYPE = "TOGGLE TODO";
-const FILTER_ALL = "SHOW ALL";
-const FILTER_OPEN = "SHOW OPEN";
-const FILTER_DONE = "SHOW DONE";
+const FILTER_ALL = "all";
+const FILTER_OPEN = "open";
+const FILTER_DONE = "done";
 
 let currentId = 0;
 
@@ -32,10 +33,6 @@ const getVisibileTodos = (todos, filter) => {
 
 const addTodo = (id, text) => {
   return {id, type: ADD_TODO_TYPE, text};
-};
-
-const setVisibilityFilter = (filter) => {
-  return {type: VISIBILITY_ACTION_TYPE, filter};
 };
 
 const toggleTodo = (id) => {
@@ -131,23 +128,6 @@ const TodoList = ({todos, onTodoClick}) => {
   );
 };
 
-const Link = ({active, onClick, children}) => {
-  if (active)
-    return <span>{children}</span>
-  return (
-    <a
-      href="#"
-      onClick={
-        (e) => {
-          e.preventDefault();
-          onClick();
-        }
-      }>
-      {children}
-    </a>
-  )
-};
-
 const Footer = ({store}) => (
   <p>
     Show:{" "}
@@ -184,18 +164,13 @@ const VisibileTodoList = connect(
   mapStateTodoToProps, mapDispatchTodoToProps
 )(TodoList);
 
-// The second arg is the props for the container
-const mapStateFilterToProps = (state, props) => {
-  return {active: state.visibilityFilter === props.filter};
-}
-
-const mapDispatchFilterToProps = (dispatch, props) => {
-  return {onClick: () => dispatch(setVisibilityFilter(props.filter))};
-}
-
-const FilterLink = connect(
-  mapStateFilterToProps, mapDispatchFilterToProps
-)(Link);
+const FilterLink = ({ filter, children }) => (
+  <Link
+    to={filter === FILTER_ALL ? '' : filter}
+    activeStyle={{textDecoration: 'none', color: 'black'}}>
+    {children}
+  </Link>
+);
 
 // React
 
@@ -210,8 +185,11 @@ const App = () => {
 };
 
 ReactDOM.render(
+  // Second arg of createStore is a persistedState
   <Provider store={createStore(appRedux)}>
-    <App />
+    <Router history={browserHistory}>
+      <Route path="/(:filter)" component={App} />
+    </Router>
   </Provider>,
   document.getElementById('root')
 );
