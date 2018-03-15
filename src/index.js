@@ -1,11 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
-import PropTypes from 'prop-types';
 import { Provider, connect } from 'react-redux';
-import { Router, Route, browserHistory, Link} from 'react-router';
+import { Router, Route, browserHistory, Link, withRouter } from 'react-router';
 
-const VISIBILITY_ACTION_TYPE = "SET VISIBILITY FILTER";
 const ADD_TODO_TYPE = "ADD TODO";
 const TOGGLE_TODO_TYPE = "TOGGLE TODO";
 const FILTER_ALL = "all";
@@ -148,8 +146,8 @@ const Footer = ({store}) => (
 
 const AddTodo = connect()(AddTodoComponent)
 
-const mapStateTodoToProps = (state, props) => {
-  return {todos: getVisibileTodos(state.todos, props.filter)};
+const mapStateTodoToProps = (state, { params }) => {
+  return {todos: getVisibileTodos(state.todos, params.filter)};
 };
 
 const mapDispatchTodoToProps = (dispatch) => {
@@ -158,9 +156,9 @@ const mapDispatchTodoToProps = (dispatch) => {
   };
 }
 
-const VisibileTodoList = connect(
+const VisibileTodoList = withRouter(connect(
   mapStateTodoToProps, mapDispatchTodoToProps
-)(TodoList);
+)(TodoList));
 
 // React
 
@@ -168,7 +166,7 @@ const App = ({ params }) => {
   return (
     <div>
       <AddTodo />
-      <VisibileTodoList filter={params.filter || FILTER_ALL}/>
+      <VisibileTodoList />
       <Footer />
     </div>
   );
