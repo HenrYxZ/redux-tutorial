@@ -150,14 +150,11 @@ const mapStateTodoToProps = (state, { params }) => {
   return {todos: getVisibileTodos(state.todos, params.filter)};
 };
 
-const mapDispatchTodoToProps = (dispatch) => {
-  return {
-    onTodoClick: (id) => dispatch(toggleTodo(id))
-  };
-}
-
+// Map onTodoClick prop that will be passed to TodoList component to the
+// toggleTodo action creator that will be dispatch(toggleTodo(...)) because the
+// parameters are the same
 const VisibileTodoList = withRouter(connect(
-  mapStateTodoToProps, mapDispatchTodoToProps
+  mapStateTodoToProps, {onTodoClick: toggleTodo}
 )(TodoList));
 
 // React
