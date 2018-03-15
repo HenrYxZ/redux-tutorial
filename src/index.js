@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
 import { Router, Route, browserHistory, Link, withRouter } from 'react-router';
+import { createLogger } from 'redux-logger';
 
 const ADD_TODO_TYPE = "ADD TODO";
 const TOGGLE_TODO_TYPE = "TOGGLE TODO";
@@ -181,23 +182,9 @@ const App = ({ params }) => {
   );
 };
 
-const addLoggingToDispatch = (store) => {
-  const rawDispatch = store.dispatch;
-  if (!console.group)
-    return rawDispatch;
-  return (action) => {
-    console.group(action.type);
-    console.log('%c prev state', 'color: gray', store.getState());
-    console.log('%c action', 'color: blue', action);
-    const answer = rawDispatch(action);
-    console.log('%c next state', 'color: green', store.getState());
-    console.groupEnd(action.type);
-    return answer;
-  }
-}
+const middlewares = [createLogger()];
 
-let store = createStore(appRedux)
-store.dispatch = addLoggingToDispatch(store)
+const store = createStore(appRedux, applyMiddleware(...middlewares))
 
 ReactDOM.render(
   // Second arg of createStore is a persistedState
