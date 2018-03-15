@@ -14,7 +14,8 @@ let currentId = 0;
 
 // Utility functions
 
-const getVisibileTodos = (todos, filter) => {
+const getVisibileTodos = (state, filter) => {
+  const todos = getAllTodos(state);
   switch (filter) {
     case FILTER_ALL:
       return todos
@@ -56,18 +57,29 @@ const todo = (state, action) => {
   }
 };
 
-const todos = (state=[], action) => {
+const byId = (state={}, action) => {
   switch (action.type) {
     case ADD_TODO_TYPE:
-      return [...state, todo(undefined, action)];
     case TOGGLE_TODO_TYPE:
-      return state.map(t => todo(t, action));
+      return {...state, [action.id]: todo(state[action.id], action)};
     default:
       return state;
   }
 };
 
-const appRedux = combineReducers({todos});
+const allIds = (state=[], action) => {
+  switch (action.type) {
+    case ADD_TODO_TYPE:
+      return [...state, action.id];
+    default:
+      return state;
+  }
+}
+
+const appRedux = combineReducers({byId, allIds});
+
+const getAllTodos = (state) =>
+  state.allIds.map(id => state.byId[id]);
 
 // Presentation components
 
@@ -147,7 +159,7 @@ const Footer = ({store}) => (
 const AddTodo = connect()(AddTodoComponent)
 
 const mapStateTodoToProps = (state, { params }) => {
-  return {todos: getVisibileTodos(state.todos, params.filter)};
+  return {todos: getVisibileTodos(state, params.filter)};
 };
 
 // Map onTodoClick prop that will be passed to TodoList component to the
