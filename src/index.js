@@ -181,9 +181,27 @@ const App = ({ params }) => {
   );
 };
 
+const addLoggingToDispatch = (store) => {
+  const rawDispatch = store.dispatch;
+  if (!console.group)
+    return rawDispatch;
+  return (action) => {
+    console.group(action.type);
+    console.log('%c prev state', 'color: gray', store.getState());
+    console.log('%c action', 'color: blue', action);
+    const answer = rawDispatch(action);
+    console.log('%c next state', 'color: green', store.getState());
+    console.groupEnd(action.type);
+    return answer;
+  }
+}
+
+let store = createStore(appRedux)
+store.dispatch = addLoggingToDispatch(store)
+
 ReactDOM.render(
   // Second arg of createStore is a persistedState
-  <Provider store={createStore(appRedux)}>
+  <Provider store={store}>
     <Router history={browserHistory}>
       <Route path="/(:filter)" component={App} />
     </Router>
