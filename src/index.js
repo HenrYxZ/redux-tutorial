@@ -69,16 +69,7 @@ const todos = (state=[], action) => {
   }
 };
 
-const visibilityFilter = (state=FILTER_ALL, action) => {
-  switch (action.type) {
-    case VISIBILITY_ACTION_TYPE:
-      return action.filter;
-    default:
-      return state;
-  }
-};
-
-const appRedux = combineReducers({todos, visibilityFilter});
+const appRedux = combineReducers({todos});
 
 // Presentation components
 
@@ -104,8 +95,7 @@ const Todo = ({todo, onClick}) => {
   return (
     <li
       onClick={onClick}
-      style={{textDecoration: todo.completed ? 'line-through': 'none'}}
-    >
+      style={{textDecoration: todo.completed ? 'line-through': 'none'}}>
       {todo.text}
     </li>
   );
@@ -127,6 +117,14 @@ const TodoList = ({todos, onTodoClick}) => {
     </ul>
   );
 };
+
+const FilterLink = ({ filter, children }) => (
+  <Link
+    to={filter}
+    activeStyle={{textDecoration: 'none', color: 'black'}}>
+    {children}
+  </Link>
+);
 
 const Footer = ({store}) => (
   <p>
@@ -150,8 +148,8 @@ const Footer = ({store}) => (
 
 const AddTodo = connect()(AddTodoComponent)
 
-const mapStateTodoToProps = (state) => {
-  return {todos: getVisibileTodos(state.todos, state.visibilityFilter)};
+const mapStateTodoToProps = (state, props) => {
+  return {todos: getVisibileTodos(state.todos, props.filter)};
 };
 
 const mapDispatchTodoToProps = (dispatch) => {
@@ -164,21 +162,13 @@ const VisibileTodoList = connect(
   mapStateTodoToProps, mapDispatchTodoToProps
 )(TodoList);
 
-const FilterLink = ({ filter, children }) => (
-  <Link
-    to={filter === FILTER_ALL ? '' : filter}
-    activeStyle={{textDecoration: 'none', color: 'black'}}>
-    {children}
-  </Link>
-);
-
 // React
 
-const App = () => {
+const App = ({ params }) => {
   return (
     <div>
       <AddTodo />
-      <VisibileTodoList />
+      <VisibileTodoList filter={params.filter || FILTER_ALL}/>
       <Footer />
     </div>
   );
